@@ -4,12 +4,11 @@ from PyPDF2 import PdfReader
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 from langchain_community.vectorstores import FAISS
 from langchain_huggingface import HuggingFaceEmbeddings
-from langchain.memory import ConversationBufferMemory
-from langchain.chains import ConversationalRetrievalChain
+from langchain_classic.memory import ConversationBufferMemory
+from langchain_classic.chains import ConversationalRetrievalChain
 from langchain_groq import ChatGroq
 
 
-# ---------- PDF -> raw text ----------
 def get_pdf_text(pdf_docs):
     text = ""
     for pdf in pdf_docs:
@@ -21,7 +20,6 @@ def get_pdf_text(pdf_docs):
     return text
 
 
-# ---------- raw text -> chunks ----------
 def get_text_chunks(text):
     text_splitter = RecursiveCharacterTextSplitter(
         chunk_size=1000,
@@ -32,14 +30,12 @@ def get_text_chunks(text):
     return chunks
 
 
-# ---------- chunks -> vector store ----------
 def get_vectorstore(text_chunks):
     embeddings = HuggingFaceEmbeddings(model_name="sentence-transformers/all-MiniLM-L6-v2")
     vectorstore = FAISS.from_texts(texts=text_chunks, embedding=embeddings)
     return vectorstore
 
 
-# ---------- vector store -> conversation chain ----------
 def get_conversation_chain(vectorstore):
     llm = ChatGroq(model="llama-3.1-8b-instant", temperature=0.3)
 
@@ -56,7 +52,7 @@ def get_conversation_chain(vectorstore):
     return conversation_chain
 
 
-# ---------- handle a new question from the user ----------
+
 def handle_userinput(user_question):
     if st.session_state.conversation is None:
         st.warning("Please upload your PDFs and click 'Process' first.")
